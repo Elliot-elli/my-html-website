@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AP Science Section 1 — Flashcards</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="AP Science Section 1 — Flashcards">
+<meta property="og:description" content="AP Science Section 1 词汇闪卡游戏，39 张卡片，2 个章节。">
+<style>
+  :root{
+    --canvas:#F7F6F3;
+    --surface:#FFFFFF;
+    --surface-alt:#F1EFE9;
+    --ink:#24231F;
+    --muted:#817B70;
+    --primary:#8C4E3D;
+    --primary-deep:#6F3C30;
+    --sage:#D7E5D9;
+    --line:#DED9D0;
+    --line-strong:#CBC3B4;
+    --positive:#6F7F52;
+    --attention:#A85D45;
+    --shadow:0 14px 32px rgba(60,48,37,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--canvas);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  button{font:inherit;color:inherit;cursor:pointer}
+  .app{height:100dvh;min-height:100svh;overflow:hidden;position:relative}
+  .view{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;display:flex;flex-direction:column;padding:28px clamp(28px,6vw,88px);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .42s ease,transform .42s ease}
+  .view.active{opacity:1;pointer-events:auto;transform:none}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:36px;flex:none}
+  .history{border:0;background:transparent;font-size:.82rem;color:var(--muted);padding:10px 0;letter-spacing:.03em}
+  .history:hover{color:var(--ink)}
+
+  /* ---------- welcome ---------- */
+  .welcome-grid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0}
+  .welcome-copy{max-width:560px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+  h1{font-size:clamp(3.4rem,7.5vw,6.4rem);line-height:.92;letter-spacing:-.065em;margin:0;font-weight:780}
+  .start-btn,.next-btn,.reset-btn,.link-btn{border:0;background:var(--primary);color:#fff;border-radius:12px;min-height:48px;padding:0 28px;font-weight:700;letter-spacing:.02em;transition:background .2s ease,transform .2s ease}
+  .start-btn{align-self:center;margin-top:44px;min-width:172px;min-height:56px;font-size:1rem}
+  .start-btn:hover,.next-btn:hover,.reset-btn:hover,.link-btn:hover{background:var(--primary-deep);transform:translateY(-1px)}
+  .link-btn{background:transparent;color:var(--primary);border:1px solid var(--line);font-weight:650;min-height:40px;padding:0 18px;font-size:.82rem}
+  .link-btn:hover{background:var(--surface-alt);color:var(--primary-deep)}
+  .subject-line{margin:16px 0 0;font-size:.95rem;letter-spacing:.05em;font-weight:600;color:var(--muted)}
+  .home-progress{margin-top:26px;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- chapters ---------- */
+  .levels-header{flex:none;padding-top:26px;padding-bottom:10px;text-align:center}
+  .levels-header h2{font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-.045em;font-weight:760;margin:0}
+  .levels-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:20px;padding-bottom:12px}
+  .level-group{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:100%}
+  .level-group-label{font-size:.73rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  .level-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;max-width:100%}
+  .level-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:124px;min-height:76px;padding:10px 22px;border:1px solid var(--line-strong);border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 6px 18px rgba(60,48,37,.09);transition:border-color .2s ease,transform .2s ease}
+  .level-btn:hover{border-color:var(--primary);transform:translateY(-2px)}
+  .level-num{font-size:1.05rem;font-weight:760;letter-spacing:-.01em;line-height:1.2}
+  .level-count{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .level-btn.cleared{background:var(--sage);border-color:#B9CCBB;color:var(--primary-deep)}
+  .level-btn.cleared:hover{background:#CBDDCD}
+  .level-btn.cleared::after{content:"";position:absolute;right:10px;top:50%;width:5px;height:10px;margin-top:-7px;border:solid var(--positive);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+  .levels-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:12px;border-top:1px solid var(--line)}
+  .levels-count{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .level-resume{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);font-weight:650;margin-top:3px}
+  /* 复用 .link-btn 的形状语言（1px 描边 + hover 换底），覆盖 .history 的 border:0/transparent */
+  .back-btn{border:1px solid var(--line-strong);border-radius:10px;padding:8px 16px;font-size:.82rem;font-weight:650;color:var(--ink);transition:color .2s ease,background .2s ease,border-color .2s ease}
+  .back-btn:hover{background:var(--surface-alt);border-color:var(--primary)}
+
+  /* ---------- game ---------- */
+  .game-header{display:flex;align-items:end;justify-content:space-between;gap:24px;flex:none;padding-top:34px;padding-bottom:18px}
+  .game-title-wrap{display:flex;flex-direction:column;gap:7px;min-width:0}
+  .level-stamp{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--primary)}
+  .game-title{font-size:clamp(1.6rem,2.6vw,2.5rem);letter-spacing:-.04em;font-weight:750;margin:0}
+  .stats{display:flex;align-items:center;gap:22px;color:var(--muted);font-size:.79rem;letter-spacing:.04em;white-space:nowrap}
+  .stat strong{color:var(--ink);font-size:.94rem;margin-left:5px}
+  .stat-review{border:0;background:transparent;padding:4px 7px;margin:-4px -7px;border-radius:8px;font-size:inherit;letter-spacing:inherit;cursor:pointer;transition:color .2s ease,background .2s ease}
+  .stat-review:hover{color:var(--ink);background:var(--surface-alt)}
+  .levels-exit{position:absolute;top:18px;right:clamp(22px,6vw,80px);border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);padding:7px 14px;font-size:.79rem;font-weight:650;color:var(--muted);transition:color .2s ease,background .2s ease,border-color .2s ease}
+  .levels-exit:hover{color:var(--ink);background:var(--surface-alt);border-color:var(--primary)}
+  .progress{height:3px;background:#E4E0D8;width:100%;flex:none;position:relative}
+  .progress span{display:block;height:100%;width:0;background:var(--primary);transition:width .35s ease}
+  .game-main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0 10px}
+  .card-wrap{width:min(78vw,720px);height:min(48vh,340px);min-height:238px;perspective:1200px;position:relative}
+  .flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .62s cubic-bezier(.2,.78,.25,1);border-radius:18px;outline:none}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .card-face{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:18px;background:var(--surface);display:flex;align-items:center;justify-content:center;padding:clamp(28px,5vw,68px);text-align:center;box-shadow:var(--shadow);overflow:hidden}
+  .card-face p{margin:0;max-width:620px}
+  /* 释义适度放大以符合阅读习惯；上限 1.15rem 是校验第 8 项的硬约束，不要再往上调 */
+  .card-front p{font-size:clamp(1.02rem,1.35vw,1.15rem);line-height:1.75;font-weight:400;color:#3D3A34;
+    max-width:100%;overflow-wrap:anywhere;word-break:normal}
+  /* 超长释义自适应：装不下时按阶梯降字号，绝不溢出卡面 */
+  .card-front.is-long p{font-size:clamp(.88rem,1.1vw,1rem);line-height:1.6}
+  .card-front.is-verylong p{font-size:clamp(.8rem,1vw,.9rem);line-height:1.55}
+  .card-back{transform:rotateY(180deg);background:#FEFDF9}
+  .card-back p{font-size:clamp(1.7rem,3.6vw,3.2rem);line-height:1.1;font-weight:800;letter-spacing:-.045em;overflow-wrap:anywhere}
+  .controls{height:72px;display:flex;align-items:center;justify-content:center;gap:10px;flex:none;position:relative;width:min(78vw,720px)}
+  .prev-btn{position:absolute;left:0;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;transition:background .2s ease,border-color .2s ease,opacity .2s ease}
+  .prev-btn::after{content:'';width:8px;height:8px;border-left:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg);margin-left:2px;transition:border-color .2s ease}
+  .prev-btn:hover{border-color:var(--primary);background:var(--surface-alt)}
+  .prev-btn:hover::after{border-color:var(--primary)}
+  .prev-btn[disabled]{opacity:.32;cursor:default}
+  .prev-btn[disabled]:hover{border-color:var(--line-strong);background:var(--surface)}
+  .prev-btn[disabled]:hover::after{border-color:var(--muted)}
+  .state-btn{min-width:116px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface-alt);font-size:.84rem;font-weight:650;transition:background .2s ease,border .2s ease,opacity .2s ease,transform .2s ease}
+  .state-btn:hover{background:#E9E5DC;transform:translateY(-1px)}
+  .state-btn.know:hover{border-color:var(--positive);color:var(--positive)}
+  .state-btn.unsure:hover{border-color:#9A7C45;color:#80652F}
+  .state-btn.unknown:hover{border-color:var(--attention);color:var(--attention)}
+  .next-btn{min-width:130px;display:none}
+  .controls.awaiting .state-btn{display:none}
+  .controls.awaiting .next-btn{display:inline-flex;align-items:center;justify-content:center}
+  .footer-note{font-size:.74rem;color:var(--muted);height:24px;flex:none;text-align:center}
+
+  /* ---------- summary ---------- */
+  .summary{align-items:center;justify-content:center;text-align:center}
+  .summary-inner{width:min(620px,90vw);display:flex;flex-direction:column;align-items:center}
+  .summary-kicker{color:var(--muted);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px}
+  .summary h2{font-size:clamp(2.6rem,5vw,5rem);line-height:.95;letter-spacing:-.06em;margin:0 0 14px}
+  .summary-level{margin-top:14px;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .summary-stats{display:flex;gap:clamp(26px,5vw,64px);margin:38px 0 42px}
+  .summary-stat strong{display:block;font-size:2.1rem;letter-spacing:-.05em}
+  .summary-stat span{display:block;color:var(--muted);font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;margin-top:5px}
+  .summary-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .reset-btn{min-width:148px}
+
+
+  /* ---------- back navigation + exit confirm ---------- */
+  body.dialog-locked{overflow:hidden}
+  body.dialog-locked .app{pointer-events:none}
+  .exit-mask{position:fixed;top:0;left:0;right:0;bottom:0;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(36,35,31,.46)}
+  .exit-mask[hidden]{display:none}
+  .exit-dialog{width:min(400px,100%);border-radius:16px;background:var(--surface);border:1px solid var(--line);padding:26px 24px 20px;text-align:center;box-shadow:0 22px 48px rgba(60,48,37,.24)}
+  .exit-title{margin:0 0 10px;font-size:1.28rem;font-weight:760;letter-spacing:-.03em}
+  .exit-desc{margin:0 0 22px;color:var(--muted);font-size:.88rem;line-height:1.6}
+  .exit-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .exit-btn{min-height:44px;padding:0 20px;border-radius:11px;font-size:.86rem;font-weight:700}
+  .exit-cancel{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
+  .exit-confirm{border:0;background:var(--primary);color:#fff}
+  /* ---------- review ---------- */
+  .review-header{flex:none;width:min(760px,100%);align-self:center;padding:18px 0 6px}
+  .review-title{font-size:clamp(1.6rem,2.8vw,2.4rem);letter-spacing:-.045em;font-weight:760;margin:0}
+  .review-scope{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--primary)}
+  .review-count{margin-top:8px;color:var(--muted);font-size:.76rem;letter-spacing:.09em;text-transform:uppercase}
+  /* flex:1 + min-height:0 + overflow-y:auto 三行缺一不可：
+     .app 与 html/body 都是 overflow:hidden，页面级滚动兜底失效，
+     长列表只能由本容器自己滚动；缺 min-height:0 会被 min-height:auto 顶开撑破 .view */
+  .review-body{flex:1;min-height:0;overflow-y:auto;width:min(760px,100%);align-self:center;display:flex;flex-direction:column;gap:10px;padding:12px 2px 14px}
+  .word-row{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+  .word-row.is-mastered{opacity:.45}
+  .word-main{flex:1;min-width:0}
+  .word-term{font-size:1rem;font-weight:700;letter-spacing:-.02em;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
+  .word-def{margin-top:6px;font-size:.84rem;line-height:1.6;color:var(--muted);overflow-wrap:anywhere}
+  .word-master{flex:none;border:1px solid var(--line-strong);border-radius:10px;background:transparent;color:var(--muted);font-size:.72rem;font-weight:650;letter-spacing:.04em;padding:7px 12px;white-space:nowrap;transition:color .2s ease,background .2s ease,border-color .2s ease}
+  .word-master:hover{color:var(--positive);border-color:var(--positive);background:var(--surface-alt)}
+  .word-master[disabled]{color:var(--muted);border-color:var(--line);cursor:default}
+  .word-master[disabled]:hover{color:var(--muted);border-color:var(--line);background:transparent}
+  .review-empty{width:min(520px,100%);align-self:center;margin:auto 0;padding:0 12px;text-align:center;color:var(--muted);font-size:.86rem;line-height:1.7}
+
+  @media (max-width:760px){
+    .view{padding:20px 22px}
+    .welcome-grid{gap:0}
+    h1{font-size:clamp(3.1rem,16vw,5rem)}
+    .start-btn{margin-top:32px;min-width:156px;min-height:52px}
+    .home-progress{margin-top:20px}
+    .levels-header{padding-top:20px;padding-bottom:8px}
+    .levels-header h2{font-size:clamp(1.5rem,7vw,2rem)}
+    .levels-body{gap:14px;padding-bottom:8px}
+    .level-row{gap:10px}
+    .level-btn{flex:1 1 calc(50% - 5px);min-width:96px;min-height:64px;padding:9px 14px}
+    .level-num{font-size:1.28rem}
+    .game-header{padding-top:26px;align-items:flex-start;flex-direction:column;gap:12px}
+    .stats{gap:14px;font-size:.7rem}
+    .game-main{padding-top:14px}
+    .card-wrap{width:100%;height:min(49vh,330px)}
+    .card-face{padding:clamp(20px,5vw,32px)}
+    .controls{gap:6px}
+    .state-btn{min-width:0;flex:1;padding:0 8px}
+    .controls{width:100%;padding-left:38px}
+    .prev-btn{width:32px;height:32px}
+    .prev-btn::after{width:7px;height:7px;border-left-width:1.4px;border-bottom-width:1.4px}
+    .footer-note{display:none}
+    .review-header{padding:14px 0 4px}
+    .review-body{gap:8px;padding:10px 2px 12px}
+    .word-row{padding:12px 13px;gap:10px}
+    .word-term{font-size:.95rem}
+    .word-def{font-size:.8rem;line-height:1.55}
+    .word-master{padding:6px 10px;font-size:.68rem}
+    .levels-exit{top:14px;right:22px;padding:6px 11px;font-size:.74rem}
+  }
+  @media (max-height:650px) and (min-width:761px){
+    .view{padding-top:18px;padding-bottom:14px}
+    .game-header{padding-top:20px;padding-bottom:12px}
+    .game-main{padding-top:10px}
+    .card-wrap{height:min(46vh,290px)}
+    .controls{height:62px}
+    .start-btn{margin-top:32px}
+    .levels-header{padding-top:16px;padding-bottom:8px}
+    .levels-body{gap:14px;padding-bottom:8px}
+    .level-btn{min-height:64px}
+    .levels-foot{padding-top:9px}
+    .levels-exit{top:10px}
+    .review-header{padding:12px 0 4px}
+    .review-body{gap:8px;padding:8px 2px 10px}
+  }
+  /* v4 矮屏（横屏手机）适配。
+     740x360 这类视口只命中 max-width:760px，而该断点未重置 .card-wrap 的
+     min-height:238px（基线值大于 49vh 实算值），同时也不命中
+     (max-height:650px) and (min-width:761px)（宽度不足 761），
+     结果三个作答按钮被顶出视口。本断点只认高度、置于 760px 断点之后，
+     与其不冲突：窄竖屏 360x740 高度 740 > 520 不命中，仍走 760px 断点。 */
+  @media (max-height:520px){
+    .view{padding-top:10px;padding-bottom:10px}
+    .game-header{flex-direction:row;align-items:end;gap:16px;padding-top:10px;padding-bottom:8px}
+    .game-main{padding-top:8px;padding-bottom:6px}
+    .card-wrap{height:min(42vh,200px);min-height:0}
+    .controls{height:60px}
+    .footer-note{display:none}
+    .levels-exit{top:8px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="view welcome active" id="welcomeView" aria-label="Welcome">
+    <div class="welcome-grid">
+<div class="welcome-copy">
+<h1>Flashcards</h1>
+<h2 class="subject-line">Science Section1</h2>
+<button class="start-btn" id="startBtn" type="button">Start</button>
+        <div class="home-progress" id="homeProgress"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view levels" id="levelsView" aria-label="Choose a chapter">
+    <nav class="topbar">
+      <button class="history back-btn" id="levelsBackBtn" type="button">Back</button>
+      <button class="link-btn" id="levelsReviewBtn" type="button">Review list <span id="levelsReviewCount"></span></button>
+    </nav>
+    <header class="levels-header">
+      <h2>Choose a chapter</h2>
+    </header>
+    <div class="levels-body" id="levelsBody"></div>
+    <div class="levels-foot">
+      <span class="levels-count" id="levelsCount"></span>
+    </div>
+  </section>
+
+  <section class="view game" id="gameView" aria-label="Flashcards">
+    <button class="levels-exit" id="levelsExitBtn" type="button" aria-label="Back to chapters">Back</button>
+    <header class="game-header">
+      <div class="game-title-wrap">
+        <div class="level-stamp" id="levelStamp">Section 1</div>
+        <h2 class="game-title">Flashcards</h2>
+      </div>
+      <div class="stats" aria-live="polite">
+        <span class="stat">Progress <strong id="progressText">1 / 0</strong></span>
+        <span class="stat">Known <strong id="knownText">0</strong></span>
+        <button class="stat stat-review" id="reviewStatBtn" type="button" aria-label="Review the words marked in this round">Review <strong id="reviewText">0</strong></button>
+      </div>
+    </header>
+    <div class="progress"><span id="progressBar"></span></div>
+    <main class="game-main">
+      <div class="card-wrap" id="cardWrap">
+        <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard">
+          <div class="card-face card-front"><p id="frontText"></p></div>
+          <div class="card-face card-back"><p id="backText"></p></div>
+        </div>
+      </div>
+      <div class="controls" id="controls">
+        <button class="prev-btn" id="prevBtn" type="button" aria-label="Back to the previous card" title="Back to the previous card" disabled></button>
+        <button class="state-btn know" data-state="known" type="button">I know</button>
+        <button class="state-btn unsure" data-state="uncertain" type="button">Not sure</button>
+        <button class="state-btn unknown" data-state="unknown" type="button">I don't know</button>
+        <button class="next-btn" id="nextBtn" type="button">Next</button>
+      </div>
+      <div class="footer-note" id="footerNote">Choose a state after you reveal the term.</div>
+    </main>
+  </section>
+
+  <section class="view summary" id="summaryView" aria-label="Summary">
+    <div class="summary-inner">
+      <div class="summary-kicker">Round complete</div>
+      <h2>All done.</h2>
+      <div class="summary-level" id="summaryLevel"></div>
+      <div class="summary-stats">
+        <div class="summary-stat"><strong id="summaryKnown">0</strong><span>Known</span></div>
+        <div class="summary-stat"><strong id="summaryReviewed">0</strong><span>Reviewed</span></div>
+      </div>
+      <div class="summary-actions">
+        <button class="reset-btn" id="resetBtn" type="button">Play again</button>
+        <button class="history back-btn" id="summaryLevelsBtn" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view review" id="reviewView" aria-label="Review list">
+    <nav class="topbar">
+      <button class="history back-btn" id="reviewBackBtn" type="button">Back</button>
+      <span class="review-scope" id="reviewScope">This round</span>
+    </nav>
+    <header class="review-header">
+      <h2 class="review-title" id="reviewTitle">Review list</h2>
+      <div class="review-count" id="reviewCount" aria-live="polite"></div>
+    </header>
+    <div class="review-body" id="reviewBody" role="list"></div>
+  </section>
+</div>
+<div class="exit-mask" id="exitMask" hidden>
+  <div class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exitTitle" aria-describedby="exitDesc">
+    <h2 class="exit-title" id="exitTitle">Leave this chapter?</h2>
+    <p class="exit-desc" id="exitDesc">Your progress in this chapter will be saved so you can continue later.</p>
+    <div class="exit-actions">
+      <button class="exit-btn exit-cancel" id="exitCancelBtn" type="button">Keep going</button>
+      <button class="exit-btn exit-confirm" id="exitConfirmBtn" type="button">Leave</button>
+    </div>
+  </div>
+</div><script>
+(() => {
+  const GAME = {
+  title: 'AP Science',
+  sections: [
+    {
+      num: 1,
+      label: 'Section 1',
+      levels: [
+        {
+          id: '1.1',
+          cards: [
+            { term: 'Animal', definition: 'a living organism that meets these three criteria: feeds on organic matter; is able to move from one place to another; and is made up of multiple eukaryotic cells and can produce collagen' },
+            { term: 'Mammals', definition: 'animals that have a spinal cord, brain, hair, and three middle ear bones and produce milk' },
+            { term: 'Spinal cord', definition: 'Part of the central nervous system, it is the bundle of nerves originating from the brain that allows for quick behavioral responses and reflexive behavior.' },
+            { term: 'Viviparous', definition: 'describes animals that develop their young internally, giving birth to live young instead of eggs; fertilization occurs only internally' },
+            { term: 'Oviparous', definition: 'describes animals that lay eggs wherein their young develop further and from which they eventually hatch' },
+            { term: 'Ovoviviparous', definition: 'describes animals that internally develop their young in eggs before they hatch and give birth to live young' },
+            { term: 'Arthropods', definition: 'members of the largest phylum in the animal kingdom; includes all insects and arachnids; all arthropods have an open circulatory system, no spinal cord, and an external skeletal system called an exoskeleton.' },
+            { term: 'Behavior', definition: 'all the ways in which animals interact with other organisms, internal stimuli, and the physical environment' },
+            { term: 'External stimuli', definition: 'sensory information that comes from outside of the body' },
+            { term: 'Internal stimuli', definition: 'sensory information that comes from inside the body' },
+            { term: 'Population', definition: 'all the organisms of the same species in an area' },
+            { term: 'Community', definition: 'a group of multiple different populations that all exist in an area' },
+            { term: 'Ecosystem', definition: 'a group of multiple communities, including the environment and plants and all interactions between them' },
+            { term: 'Biome', definition: 'a large area encompassing multiple ecosystems that share common environmental conditions' },
+            { term: 'Biosphere', definition: 'the collection of all environments found on Earth' },
+            { term: 'Keystone species', definition: 'a species that has a vital role in the ecosystem and is necessary for multiple species to exist' },
+            { term: 'Taxonomy', definition: 'the field of research that seeks to systematically classify organisms with a universally used name and category that gives descriptive information about the organism’s relation to other living things' },
+            { term: 'Binomial name', definition: 'also known as a taxonomic name; the specific name created in Latin for a species or animal that includes information about its believed relationship with other animals' },
+            { term: 'Phylogenetic trees', definition: 'a visual representation of the evolutionary history of how animals are related to one another' },
+            { term: 'Branch', definition: 'a line on a phylogenetic tree that represents one group of animals or an individual, depending on the type of phylogenetic tree' }
+          ]
+        },
+        {
+          id: '1.2',
+          cards: [
+            { term: 'Internal node', definition: 'the point at which two branches meet on a phylogenetic tree, representing the last ancestor shared between the two groups of animals represented by the branches' },
+            { term: 'Divergence event', definition: 'the point at which two species can no longer breed together due to their genetics becoming too different, and they develop into two separate new species' },
+            { term: 'Evolution', definition: 'the total change in a population of organisms over time, including physical and behavioral traits' },
+            { term: 'Fitness', definition: 'how successful an individual organism is relative to others at reproducing and passing on its genetic information' },
+            { term: 'Traits', definition: 'a specific, observable characteristic of an organism that can be determined by genes, the environment, or both' },
+            { term: 'Natural selection', definition: 'the process that drives the evolution of physical or behavioral traits over generations' },
+            { term: 'Selective pressure', definition: 'the factors that affect which traits are inherited in a population; positive selection pressures add new traits to the population, and negative pressures remove traits.' },
+            { term: 'Kin selection', definition: 'a theory of natural selection that explains why behaviors, like the tendency to help genetically related relatives, persist in some species despite being costly to the individual' },
+            { term: 'Ethology', definition: 'the science and study of animal behavior' },
+            { term: 'Imprinting', definition: 'a type of learning where an animal develops a specific behavioral response to a stimulus necessary for survival at a critical timepoint early in development; if the stimulus is not present during the critical period, the animal will never learn the behavior.' },
+            { term: 'Innate (instinctual) behaviors', definition: 'behaviors that animals are born knowing how to do that do not require learning' },
+            { term: 'Anthropomorphism', definition: 'the human tendency to use human characteristics to explain the behavior or intentions of animals without scientific evidence' },
+            { term: 'Observational study', definition: 'a noninvasive way to study the behavior of animals in their natural environment by observing and recording their behavior from a distance' },
+            { term: 'Control group', definition: 'the group of animals in an experiment that does not experience any direct manipulation during a research study; the control group is used to compare what effect the manipulation or treatment has on a behavior.' },
+            { term: 'Ethogram', definition: 'a description of behaviors observed in an animal; used by researchers to objectively record behaviors' },
+            { term: 'Inter-rater reliability', definition: 'a statistical method of testing how consistent two or more independent observers are in evaluating the same behaviors' },
+            { term: 'Machine learning', definition: 'the subset of artificial intelligence (AI) focused on algorithms that can “learn” the patterns of training data and, subsequently, make accurate inferences about new data' },
+            { term: 'Collagen', definition: 'a type of protein produced by some eukaryotic cells that provides structure to the cells; collagen is found in skin, tendons, bones, ligaments, and surrounding the organs of animals.' },
+            { term: 'Eukaryotic cell', definition: 'a type of cell that is surrounded by a membrane and has internal organelles that are also surrounded by a membrane; all animals are made up of eukaryotic cells, some of which are capable of producing collagen.' }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+  const copy = { hintBefore: 'Choose a state after you reveal the term.', hintAfter: 'Take your time, then continue when ready.' };
+
+  const STORE_KEY = 'fx_fc_v1:ap-science-section1';
+  const STORE_VERSION = 1;
+
+  // ---- 关卡索引（boot 时构建一次） ----
+  const LEVELS = [];
+  GAME.sections.forEach(function(sec){
+    sec.levels.forEach(function(lv){
+      lv.sectionNum = sec.num;
+      lv.sectionLabel = sec.label;
+      LEVELS.push(lv);
+    });
+  });
+  // 章节编号：全局按牌组顺序递增（chapter1、chapter2 …），不再用 section 前缀（2.1 / 2.2）。
+  // 直接改写 lv.id —— 它同时是显示源（校验第 14 项要求 .textContent = lv.id）
+  // 与 localStorage 的 key，改完三处显示（按钮 / 角标 / 结算页）自然同步。
+  // 注意：旧存档里存的是 '2.1' 这类 key，改 id 会让老记录失联，
+  // 因此 migrateLegacyIds() 会把旧 key 迁移到新 key。
+  const chapterOrder = [];
+  GAME.sections.forEach(function(sec){
+    sec.levels.forEach(function(lv){
+      lv.chapterNo = chapterOrder.length + 1;
+      lv.id = 'chapter' + lv.chapterNo;
+      chapterOrder.push(lv);
+    });
+  });
+  const levelById = {};
+  LEVELS.forEach(function(lv){ levelById[lv.id] = lv; });
+
+  // ---- 词条索引（词汇列表按 term 取回 definition；term 全局唯一） ----
+  const cardByTerm = {};
+  LEVELS.forEach(function(lv){
+    lv.cards.forEach(function(c){ cardByTerm[c.term] = c; });
+  });
+
+  // ---- 进度存储（隐私模式下 localStorage 可能抛错，全部 try/catch 降级） ----
+  // schema 保持 v1：review / mastered 是纯增量字段，老存档缺省即 {}，
+  // 无需迁移即可读出既有通关记录；旧版本读到新存档也只忽略多出的键。
+  const store = { cleared: {}, review: {}, mastered: {}, progress: {} };
+  function loadStore(){
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      if (o && o.v === STORE_VERSION && o.cleared) store.cleared = o.cleared;
+      if (o && o.review) store.review = o.review;
+      if (o && o.mastered) store.mastered = o.mastered;
+      if (o && o.progress) store.progress = o.progress;
+    } catch (e) { store.cleared = {}; store.review = {}; store.mastered = {}; }
+  }
+  function saveStore(){
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        v: STORE_VERSION, cleared: store.cleared, review: store.review, mastered: store.mastered,
+        progress: store.progress
+      }));
+    } catch (e) { /* 降级：不持久化，游戏仍可正常进行 */ }
+  }
+  function markCleared(id, known, reviewed){
+    store.cleared[id] = { known: known, reviewed: reviewed, ts: Math.floor(Date.now() / 1000) };
+    saveStore();
+  }
+  function clearedCount(){
+    var n = 0;
+    LEVELS.forEach(function(lv){ if (store.cleared[lv.id]) n += 1; });
+    return n;
+  }
+
+  const phase = { WELCOME:'welcome', LEVELS:'levels', PLAYING:'playing', SUMMARY:'summary' };
+  const state = {
+    phase: phase.WELCOME,
+    levelId: null,
+    queue: [],
+    index: 0,
+    known: 0,
+    uncertain: 0,
+    unknown: 0,
+    reviewed: 0,
+    flags: {},
+    flipped: false,
+    awaitingNext: false,
+    transitioning: false,
+    swapping: false,
+    pendingId: null,
+    pendingState: null,
+    trail: [],
+    dialogOpen: false
+  };
+
+  // 当前关卡的卡组（队列算法只读它）
+  let deck = [];
+
+  const $ = (id) => document.getElementById(id);
+  const welcomeView = $('welcomeView');
+  const levelsView = $('levelsView');
+  const gameView = $('gameView');
+  const summaryView = $('summaryView');
+  const reviewView = $('reviewView');
+  const reviewBody = $('reviewBody');
+  const flashcard = $('flashcard');
+  const controls = $('controls');
+  const footerNote = $('footerNote');
+  const frontText = $('frontText');
+  const backText = $('backText');
+  const levelsBody = $('levelsBody');
+
+  function showView(view){
+    [welcomeView, levelsView, gameView, reviewView, summaryView].forEach(v => v.classList.remove('active'));
+    view.classList.add('active');
+  }
+
+  // ---- 关卡索引渲染（用 createElement + textContent，不用 innerHTML） ----
+  function renderLevels(){
+    levelsBody.textContent = '';
+    const showGroupLabel = GAME.sections.length > 1;
+    GAME.sections.forEach(function(sec){
+      const group = document.createElement('div');
+      group.className = 'level-group';
+
+      if(showGroupLabel){
+        const label = document.createElement('div');
+        label.className = 'level-group-label';
+        label.textContent = sec.label;
+        group.appendChild(label);
+      }
+
+      const row = document.createElement('div');
+      row.className = 'level-row';
+
+      sec.levels.forEach(function(lv){
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'level-btn' + (store.cleared[lv.id] ? ' cleared' : '');
+        b.dataset.level = lv.id;
+        b.setAttribute('aria-label',
+          lv.id + ', ' + lv.cards.length + ' cards'
+          + (store.cleared[lv.id] ? ', cleared' : ''));
+
+        const num = document.createElement('span');
+        num.className = 'level-num';
+        num.textContent = lv.id;
+
+        const cnt = document.createElement('span');
+        cnt.className = 'level-count';
+        cnt.textContent = lv.cards.length + ' cards';
+
+        b.appendChild(num);
+        b.appendChild(cnt);
+        const prog = store.progress[lv.id];
+        if(prog && !store.cleared[lv.id]){
+          const mark = document.createElement('span');
+          mark.className = 'level-resume';
+          mark.textContent = 'Resume';
+          b.appendChild(mark);
+        }
+        b.addEventListener('click', function(){ startLevel(lv.id); });
+        row.appendChild(b);
+      });
+
+      group.appendChild(row);
+      levelsBody.appendChild(group);
+    });
+
+    const done = clearedCount();
+    $('levelsCount').textContent = done + ' of ' + LEVELS.length + ' chapters cleared';
+    const left = pendingHistory();
+    $('levelsReviewCount').textContent = left > 0 ? '· ' + left : '';
+  }
+
+  function refreshHome(){
+    const done = clearedCount();
+    const total = LEVELS.length;
+    $('homeProgress').textContent = done === total
+      ? 'All ' + total + ' chapters cleared'
+      : done + ' of ' + total + ' chapters cleared';
+  }
+
+  function resetState(levelId){
+    state.phase = phase.PLAYING;
+    state.levelId = levelId;
+    deck = levelById[levelId].cards;
+    state.queue = deck.map((_, i) => i);
+    state.index = 0;
+    state.known = 0;
+    state.uncertain = 0;
+    state.unknown = 0;
+    state.reviewed = 0;
+    state.flags = {};
+    state.flipped = false;
+    state.awaitingNext = false;
+    state.transitioning = false;
+    state.swapping = false;
+    state.pendingId = null;
+    state.pendingState = null;
+    state.trail = [];
+    state.dialogOpen = false;
+  }
+
+  function currentCard(){ return deck[state.queue[state.index]]; }
+
+  function render(){
+    if(state.phase !== phase.PLAYING) return;
+    const card = currentCard();
+    // 正面是题目侧（definition），不是答案，换卡回正动画的起点即可写入：
+    // 正面在 rotateY 超过 90° 之后才可见，提前写入不会泄露任何答案。
+    frontText.textContent = card.definition;
+    // 背面是答案侧（term），换卡回正过程中必须冻结并保持空白，
+    // 否则新卡的 term 会在旋转前半程透出（背面正朝向观察者）。
+    if(!state.swapping) backText.textContent = card.term;
+    flashcard.classList.toggle('flipped', state.flipped);
+    controls.classList.toggle('awaiting', state.awaitingNext);
+    $('progressText').textContent = `${Math.min(state.known + 1, deck.length)} / ${deck.length}`;
+    $('knownText').textContent = state.known;
+    $('reviewText').textContent = pendingRound();
+    $('progressBar').style.width = `${(state.known / deck.length) * 100}%`;
+    footerNote.textContent = state.awaitingNext ? copy.hintAfter : copy.hintBefore;
+    const lv = levelById[state.levelId];
+    if (lv) $('levelStamp').textContent = lv.id;
+    $('prevBtn').disabled = state.trail.length <= 1;
+    fitDefinition();
+  }
+
+  function startLevel(levelId){
+    if(!levelById[levelId]) return;
+    resetState(levelId);
+    // 有进度存档就从上次节点继续；没有就从头开始
+    restoreProgress(levelId);
+    state.trail.push(snapshot());
+    showView(gameView);
+    render();
+  }
+
+  function startGame(){
+    openLevels();
+  }
+
+  function openLevels(){
+    loadStore();
+    renderLevels();
+    showView(levelsView);
+  }
+
+  function reveal(){
+    if(state.phase !== phase.PLAYING || state.transitioning || state.awaitingNext) return;
+    state.flipped = !state.flipped;
+    render();
+  }
+
+  function advance(){
+    if(state.phase !== phase.PLAYING || state.transitioning) return;
+    if(state.known === deck.length){ finish(); return; }
+    const pendingId = state.pendingId;
+    if(pendingId !== null){
+      const oldPosition = state.queue.indexOf(pendingId);
+      if(oldPosition !== -1) state.queue.splice(oldPosition, 1);
+      state.queue.push(pendingId);
+      state.pendingId = null;
+      state.pendingState = null;
+    }
+    state.transitioning = true;
+    state.flipped = false;
+    state.awaitingNext = false;
+    // 阶段1：翻回正面，背面保持清空、正面立即就位（render 写入新卡释义）
+    state.swapping = true;
+    backText.textContent = '';
+    render();
+    window.setTimeout(() => {
+      // 阶段2：翻转已结束，此刻才让下一张就位
+      state.index = 0;
+      state.swapping = false;
+      state.transitioning = false;
+      state.trail.push(snapshot());
+      render();
+    }, 620);
+  }
+
+  function choose(stateName){
+    if(state.phase !== phase.PLAYING || state.transitioning || state.awaitingNext) return;
+    const currentId = state.queue[state.index];
+    if(stateName === 'known'){
+      state.known += 1;
+      state.pendingId = currentId;
+      state.pendingState = 'known';
+      state.flipped = true;
+      state.transitioning = true;
+      render();
+      window.setTimeout(() => {
+        const oldPosition = state.queue.indexOf(currentId);
+        if(oldPosition !== -1) state.queue.splice(oldPosition, 1);
+        state.pendingId = null;
+        state.pendingState = null;
+        if(state.known === deck.length){ state.transitioning = false; finish(); return; }
+        // 阶段1：翻回正面，背面保持清空、正面立即就位（render 写入新卡释义）
+        state.flipped = false;
+        state.swapping = true;
+        backText.textContent = '';
+        render();
+        window.setTimeout(() => {
+          // 阶段2：翻转已结束，此刻才让下一张就位
+          state.index = 0;
+          state.swapping = false;
+          state.transitioning = false;
+          state.trail.push(snapshot());
+          render();
+        }, 620);
+      }, 680);
+      return;
+    }
+    // I know 不计入待复查（见上方 known 分支）；uncertain / unknown 按 term 去重后计入
+    markReviewed(currentCard().term, stateName);
+    state.pendingId = currentId;
+    state.pendingState = stateName;
+    state.flipped = true;
+    state.awaitingNext = true;
+    render();
+  }
+
+  function finish(){
+    state.phase = phase.SUMMARY;
+    $('summaryKnown').textContent = state.known;
+    $('summaryReviewed').textContent = state.reviewed;
+    const lv = levelById[state.levelId];
+    $('summaryLevel').textContent = lv ? lv.id : '';
+    markCleared(state.levelId, state.known, state.reviewed);
+    showView(summaryView);
+  }
+
+  // ---- trail 快照栈：回退必须整份恢复 state，只存卡索引会落到错误的卡 ----
+  function snapshot(){
+    return {
+      queue: state.queue.slice(),
+      index: state.index,
+      known: state.known,
+      uncertain: state.uncertain,
+      unknown: state.unknown,
+      reviewed: state.reviewed,
+      flags: Object.assign({}, state.flags)
+    };
+  }
+  function restoreSnapshot(s){
+    state.queue = s.queue.slice();
+    state.index = s.index;
+    state.known = s.known;
+    state.uncertain = s.uncertain;
+    state.unknown = s.unknown;
+    state.reviewed = s.reviewed;
+    state.flags = Object.assign({}, s.flags);
+  }
+
+  // ---- 回上一张题：第一张题时按钮 disabled，此处仅作兜底 ----
+  function goPrev(){
+    if(state.phase !== phase.PLAYING || state.transitioning || state.dialogOpen) return;
+    if(state.trail.length <= 1) return;
+    state.trail.pop();
+    restoreSnapshot(state.trail[state.trail.length - 1]);
+    state.transitioning = true;
+    state.flipped = false;
+    state.awaitingNext = false;
+    state.pendingId = null;
+    state.pendingState = null;
+    state.swapping = true;
+    backText.textContent = '';
+    render();
+    window.setTimeout(() => {
+      state.swapping = false;
+      state.transitioning = false;
+      render();
+    }, 620);
+  }
+
+  // ---- 退出确认弹窗（遮罩为 body 直属层：.app 是 flex 容器，装不下 fixed 弹层）----
+  const exitMask = $('exitMask');
+  let lastFocus = null;
+  function openExitDialog(){
+    if(state.dialogOpen) return;
+    state.dialogOpen = true;
+    lastFocus = document.activeElement;
+    exitMask.hidden = false;
+    document.body.classList.add('dialog-locked');
+    $('exitCancelBtn').focus();
+  }
+  function closeExitDialog(){
+    if(!state.dialogOpen) return;
+    state.dialogOpen = false;
+    exitMask.hidden = true;
+    document.body.classList.remove('dialog-locked');
+    if(lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    lastFocus = null;
+  }
+  function confirmExit(){
+    saveProgress();
+    closeExitDialog();
+    state.trail = [];
+    state.flags = {};
+    state.known = 0;
+    state.uncertain = 0;
+    state.unknown = 0;
+    state.reviewed = 0;
+    state.phase = phase.LEVELS;
+    openLevels();
+  }
+  // 离开本轮：本轮有作答才需要确认，没作答直接回章节列表
+  function leaveRound(){
+    if(state.phase !== phase.PLAYING) return;
+    if(state.known + state.uncertain + state.unknown > 0){ openExitDialog(); return; }
+    confirmExit();
+  }
+  // 旧存档迁移：旧 key 是 "section.序号"（如 "2.1"），新 key 是 "chapter序号"。
+  // 迁移后用户已有的通关记录与进度存档不会失联。
+  function migrateLegacyIds(){
+    if(!store.migrated){
+      chapterOrder.forEach(function(lv, i){
+        const legacy = lv.sectionNum + '.' + (i + 1);
+        if(legacy !== lv.id && store.cleared[legacy] && !store.cleared[lv.id]){
+          store.cleared[lv.id] = store.cleared[legacy];
+          delete store.cleared[legacy];
+        }
+        if(legacy !== lv.id && store.progress[legacy] && !store.progress[lv.id]){
+          store.progress[lv.id] = store.progress[legacy];
+          delete store.progress[legacy];
+        }
+      });
+      store.migrated = true;
+      saveStore();
+    }
+  }
+  // ---- 进度保留：Back 退出时存档，再次进入同一关卡时从上次节点继续 ----
+  // 存档内容：已掌握的词（done）+ 未掌握的词（todo，原队列顺序）。
+  // 不存整份 state —— 队列的相对顺序在跨会话后没有意义，
+  // 真正要恢复的是「哪些词还没学」，恢复时按 deck 原始顺序重排。
+  function saveProgress(){
+    if(state.phase !== phase.PLAYING || !state.levelId) return;
+    if(state.known + state.uncertain + state.unknown === 0){
+      delete store.progress[state.levelId];
+      saveStore();
+      return;
+    }
+    // queue 就是权威的「剩余待学列表」：标 I know 的会被 splice 移除，
+    // 标 Not sure / I don't know 的会被推到队尾。所以直接存它，
+    // 不要自己按 flags 反推 done/todo —— flags 只记 uncertain/unknown，
+    // 拿它判「已掌握」会把没碰过的词也当成已掌握。
+    const remaining = state.queue.slice();
+    store.progress[state.levelId] = {
+      remaining: remaining,
+      known: state.known,
+      uncertain: state.uncertain,
+      unknown: state.unknown,
+      reviewed: state.reviewed,
+      ts: Math.floor(Date.now() / 1000)
+    };
+    saveStore();
+  }
+
+  // 读取存档并重建队列：已掌握的词移出队列（不再出现），其余按 deck 原始顺序回到队首。
+  function restoreProgress(levelId){
+    const p = store.progress[levelId];
+    if(!p) return false;
+    if(!Array.isArray(p.remaining)) return false;
+    // 过滤掉已不存在的卡（题库若变过，索引会错位）
+    const queue = p.remaining.filter(function(ci){ return ci >= 0 && ci < deck.length; });
+    if(queue.length === 0) return false;
+    state.queue = queue;
+    state.index = 0;
+    state.known = p.known || 0;
+    state.uncertain = p.uncertain || 0;
+    state.unknown = p.unknown || 0;
+    state.reviewed = p.reviewed || 0;
+    state.flags = {};
+    return true;
+  }
+  /*释义溢出判定：必须用几何测量，不能用 scrollHeight。
+     .card-front 是 display:flex;align-items:center，内容装不下时上下同时溢出，
+     而 scrollHeight 只统计块向末端（下）的溢出 —— 上半侧完全测不到。
+     实测：子元素 330px / 可用 210px，真实溢出 120px（上下各 60），
+     scrollHeight 只报 60；溢出 1px 时 339 > 338+1 亦为假，直接漏判。
+     正确口径：拿文字外框与卡面「内容盒」比，四个方向都算。 */
+  function definitionOverflows(face){
+    const cs = getComputedStyle(face);
+    const box = face.getBoundingClientRect();
+    const kid = frontText.getBoundingClientRect();
+    const overTop = (box.top + parseFloat(cs.paddingTop)) - kid.top;
+    const overBot = kid.bottom - (box.bottom - parseFloat(cs.paddingBottom));
+    return overTop > 0.5 || overBot > 0.5;
+  }
+  // ---- 释义自适应缩放：装不下时逐档降字号，保证不溢出卡面 ----
+  function fitDefinition(){
+    const face = frontText.parentNode;
+    if(!face) return;
+    face.classList.remove('is-long', 'is-verylong');
+    if(!definitionOverflows(face)) return;
+    face.classList.add('is-long');
+    void face.offsetHeight;              // 强制重排，让下一行读到降档后的真实高度
+    if(definitionOverflows(face)) face.classList.add('is-verylong');
+  }
+  // ---- 待复查词表：本次（内存 state.flags）与历史累计（localStorage store.review） ----
+  function markReviewed(term, verdict){
+    // 同一单词在本轮内只计一次；换成另一种判定也不重复累加
+    if(!state.flags[term]){
+      state.flags[term] = verdict;
+      state.reviewed += 1;
+      if(verdict === 'uncertain') state.uncertain += 1;
+      if(verdict === 'unknown') state.unknown += 1;
+    }
+    store.review[term] = { state: verdict, ts: Math.floor(Date.now() / 1000) };
+    saveStore();
+  }
+  function markMastered(term){
+    if(store.mastered[term]) return;
+    store.mastered[term] = { ts: Math.floor(Date.now() / 1000) };
+    saveStore();
+  }
+  // 徽标计数：一律排除已掌握的词
+  function pendingRound(){
+    let n = 0;
+    for (const term in state.flags){ if(!store.mastered[term]) n += 1; }
+    return n;
+  }
+  function pendingHistory(){
+    let n = 0;
+    for (const term in store.review){ if(!store.mastered[term]) n += 1; }
+    return n;
+  }
+
+  // ---- 词汇列表视图（第 5 个 view）----
+  // scope: 'round' = 本次标记的词；'history' = 历史累计
+  // 刻意不改 state.phase —— reviewView 只是 showView 的一层，
+  // 队列 / 翻面时序 / transitioning 全部原样保留，返回时状态天然自愈。
+  let reviewScope = 'round';
+  let reviewReturnView = null;
+  function openReview(scope){
+    reviewScope = scope;
+    reviewReturnView = (scope === 'round') ? gameView : levelsView;
+    renderReview();
+    showView(reviewView);
+    $('reviewBackBtn').focus();
+  }
+  function closeReview(){
+    const back = reviewReturnView || gameView;
+    showView(back);
+    if (back === gameView){ render(); $('reviewStatBtn').focus(); }
+    else { renderLevels(); $('levelsReviewBtn').focus(); }
+  }
+  function renderReview(){
+    const round = reviewScope === 'round';
+    const keys = round ? Object.keys(state.flags) : Object.keys(store.review);
+    if(!round) keys.sort(function(a, b){ return store.review[b].ts - store.review[a].ts; });
+    $('reviewScope').textContent = round ? 'This round' : 'All time';
+    $('reviewTitle').textContent = round ? 'Review list' : 'Review history';
+    let left = 0;
+    reviewBody.textContent = '';
+    if(keys.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'review-empty';
+      empty.id = 'reviewEmpty';
+      empty.textContent = round
+        ? 'No words marked in this round yet. Cards you mark as Not sure or I don\'t know will collect here.'
+        : 'No words marked yet. Words you flag in any chapter will collect here.';
+      reviewBody.appendChild(empty);
+    } else {
+      keys.forEach(function(term){
+        const learned = !!store.mastered[term];
+        if(!learned) left += 1;
+        const card = cardByTerm[term];
+        const row = document.createElement('div');
+        row.className = learned ? 'word-row is-mastered' : 'word-row';
+        row.setAttribute('role', 'listitem');
+        const main = document.createElement('div');
+        main.className = 'word-main';
+        const t = document.createElement('div');
+        t.className = 'word-term';
+        t.textContent = term;
+        main.appendChild(t);
+        if(card){
+          const d = document.createElement('div');
+          d.className = 'word-def';
+          d.textContent = card.definition;
+          main.appendChild(d);
+        }
+        row.appendChild(main);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'word-master';
+        btn.dataset.term = term;
+        if(learned){
+          btn.textContent = 'Learned';
+          btn.disabled = true;
+          btn.setAttribute('aria-pressed', 'true');
+          btn.setAttribute('aria-label', term + ' is marked as learned');
+        } else {
+          btn.textContent = 'Got it';
+          btn.setAttribute('aria-pressed', 'false');
+          btn.setAttribute('aria-label', 'Mark ' + term + ' as learned');
+          btn.addEventListener('click', function(){
+            markMastered(term);
+            row.className = 'word-row is-mastered';
+            btn.textContent = 'Learned';
+            btn.disabled = true;
+            btn.setAttribute('aria-pressed', 'true');
+            // 徽标 / 本页计数 / 关卡页计数同步排除已掌握
+            left -= 1;
+            $('reviewCount').textContent = left + ' to review · ' + keys.length + ' marked';
+            $('reviewText').textContent = pendingRound();
+            const hist = pendingHistory();
+            $('levelsReviewCount').textContent = hist > 0 ? '· ' + hist : '';
+          });
+        }
+        row.appendChild(btn);
+        reviewBody.appendChild(row);
+      });
+    }
+    $('reviewCount').textContent = keys.length
+      ? left + ' to review · ' + keys.length + ' marked'
+      : '';
+  }
+
+  $('startBtn').addEventListener('click', startGame);
+  $('levelsBackBtn').addEventListener('click', function(){ refreshHome(); showView(welcomeView); });
+  $('levelsExitBtn').addEventListener('click', leaveRound);
+  $('prevBtn').addEventListener('click', goPrev);
+  $('exitCancelBtn').addEventListener('click', closeExitDialog);
+  $('exitConfirmBtn').addEventListener('click', confirmExit);
+  exitMask.addEventListener('click', function(e){ if(e.target === exitMask) closeExitDialog(); });
+  $('reviewStatBtn').addEventListener('click', function(){ openReview('round'); });
+  $('levelsReviewBtn').addEventListener('click', function(){ openReview('history'); });
+  $('reviewBackBtn').addEventListener('click', closeReview);
+  document.addEventListener('keydown', function(event){
+    if (state.dialogOpen) {
+      if (event.key === 'Tab') {
+        const f = [$('exitCancelBtn'), $('exitConfirmBtn')];
+        const i = f.indexOf(document.activeElement);
+        event.preventDefault();
+        f[(i + (event.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+      }
+      if (event.key === 'Escape'){ event.preventDefault(); closeExitDialog(); }
+      return;
+    }
+    if (event.key === 'Escape' && reviewView.classList.contains('active')) {
+      event.preventDefault();
+      closeReview();
+    }
+  });
+  $('summaryLevelsBtn').addEventListener('click', openLevels);
+  $('resetBtn').addEventListener('click', function(){ startLevel(state.levelId); });
+  flashcard.addEventListener('click', reveal);
+  flashcard.addEventListener('keydown', (event) => {
+    if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); reveal(); }
+  });
+  document.querySelectorAll('.state-btn').forEach(btn => btn.addEventListener('click', () => choose(btn.dataset.state)));
+  $('nextBtn').addEventListener('click', advance);
+
+  // ---- 视口变化后重算释义降档：旋转 / 地址栏收放都会改变卡面高度 ----
+  let fitTimer = 0;
+  function scheduleFit(){
+    if(fitTimer) clearTimeout(fitTimer);
+    fitTimer = setTimeout(function(){ fitTimer = 0; fitDefinition(); }, 120);
+  }
+  window.addEventListener('resize', scheduleFit);
+  window.addEventListener('orientationchange', scheduleFit);
+  // ---- boot ----
+  loadStore();
+  migrateLegacyIds();
+  refreshHome();
+  renderLevels();
+
+  window.__interactionState = state;
+})();
+</script>
+</body>
+</html>
